@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 
-/* Helper to build consistent HTTP-style errors. */
+// Helper to create HTTP errors with status codes
 function createError(statusCode, message) {
   const err = new Error(message);
   err.statusCode = statusCode;
@@ -34,10 +34,7 @@ async function registerUser({ email, password, firstName, lastName, birthDate, i
   return user;
 }
 
-/**
- * Authenticates a user using email and password.
- * Returns the user (without passwordHash via toJSON) and a signed JWT.
- */
+/* Logs in a user and returns a JWT token. */
 async function loginUser({ email, password }) {
   const normalizedEmail = email.trim().toLowerCase();
 
@@ -58,7 +55,7 @@ async function loginUser({ email, password }) {
   };
 
   const token = jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: "1h",
+    expiresIn: "1h", 
   });
 
   return { user, token };
@@ -66,7 +63,7 @@ async function loginUser({ email, password }) {
 
 /**
  * Returns all users.
- * Authorization should be enforced at the controller/middleware level (e.g. requireAdmin).
+ * Authorization should be enforced at the controller 
  */
 async function getAllUsers() {
   const users = await User.find();
@@ -84,7 +81,7 @@ async function getUserById(userId) {
   return user;
 }
 
-/*
+/**
  * Updates a user profile.
  * The controller must ensure that only the account owner or an admin calls this function.
  */
