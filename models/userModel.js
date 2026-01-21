@@ -27,7 +27,7 @@ const userSchema = new Schema(
       trim: true,
     },
     birthDate: {
-      type: Date,        // optional for now, can be required if needed
+      type: Date,
     },
     isAdmin: {
       type: Boolean,
