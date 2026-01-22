@@ -1,7 +1,6 @@
 const Message = require("../models/messageModel");
 const Flat = require("../models/flatModel");
 
-/* Helper to build consistent HTTP-style errors. */
 function createError(statusCode, message) {
   const err = new Error(message);
   err.statusCode = statusCode;
@@ -11,6 +10,9 @@ function createError(statusCode, message) {
 /**
  * Returns all messages for a given flat.
  * Only the flat owner or an admin is allowed to see all messages.
+ *
+ * @param {string} flatId
+ * @param {object} currentUser - { id, isAdmin }
  */
 async function getMessagesForFlat(flatId, currentUser) {
   if (!currentUser || !currentUser.id) {
@@ -25,11 +27,17 @@ async function getMessagesForFlat(flatId, currentUser) {
   const isOwner = flat.owner.toString() === currentUser.id;
   const isAdmin = currentUser.isAdmin === true;
 
+  // only the owner or an admin can view all messages(reinforced)
   if (!isOwner && !isAdmin) {
-    throw createError(403, "Only the flat owner or an admin can view all messages for this flat");
+    throw createError(
+      403,
+      "Only the flat owner or an admin can view all messages for this flat"
+    );
   }
 
-  const messages = await Message.find({ flat: flatId }).sort({ createdAt: 1 });
+  const messages = await Message.find({ flat: flatId })
+    .sort({ createdAt: 1 })
+    .populate("sender", "firstName lastName email");
 
   return messages;
 }
@@ -37,6 +45,10 @@ async function getMessagesForFlat(flatId, currentUser) {
 /**
  * Returns messages for a given flat and a specific sender.
  * Only the sender (or an admin) is allowed to see these messages.
+ *
+ * @param {string} flatId
+ * @param {string} senderId
+ * @param {object} currentUser { id, isAdmin }
  */
 async function getMessagesForFlatAndSender(flatId, senderId, currentUser) {
   if (!currentUser || !currentUser.id) {
@@ -51,14 +63,20 @@ async function getMessagesForFlatAndSender(flatId, senderId, currentUser) {
   const isSender = currentUser.id === senderId.toString();
   const isAdmin = currentUser.isAdmin === true;
 
+  // only the sender or an admin can view these messages(reinforced)
   if (!isSender && !isAdmin) {
-    throw createError(403, "Only the sender or an admin can view these messages");
+    throw createError(
+      403,
+      "Only the sender or an admin can view these messages"
+    );
   }
 
   const messages = await Message.find({
     flat: flatId,
     sender: senderId,
-  }).sort({ createdAt: 1 });
+  })
+    .sort({ createdAt: 1 })
+    .populate("sender", "firstName lastName email");
 
   return messages;
 }

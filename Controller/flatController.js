@@ -1,6 +1,6 @@
 const flatService = require("../Services/flatService");
 
-/* GET all flats */
+/* GET all flats(obvious) */
 async function getAllFlats(req, res, next) {
   try {
     const flats = await flatService.getAllFlats();

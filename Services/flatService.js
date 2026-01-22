@@ -1,6 +1,6 @@
 const Flat = require("../models/flatModel");
+const { updateUser } = require("./userService");
 
-/* Helper to build consistent HTTP-style errors. */
 function createError(statusCode, message) {
   const err = new Error(message);
   err.statusCode = statusCode;
@@ -50,6 +50,10 @@ async function createFlat(flatData, currentUser) {
 /**
  * Updates a flat.
  * Only the flat owner or an admin is allowed to update.
+ *
+ * @param {string} flatId        - ID do flat a ser atualizado
+ * @param {object} updates       - Campos a atualizar
+ * @param {object} currentUser   - { id, isAdmin } vindo do authMiddleware
  */
 async function updateFlat(flatId, updates, currentUser) {
   if (!currentUser || !currentUser.id) {
@@ -64,8 +68,12 @@ async function updateFlat(flatId, updates, currentUser) {
   const isOwner = flat.owner.toString() === currentUser.id;
   const isAdmin = currentUser.isAdmin === true;
 
+  // only the owner or an admin can update(reinforced)
   if (!isOwner && !isAdmin) {
-    throw createError(403, "Only the flat owner or an admin can update this flat");
+    throw createError(
+      403,
+      "Only the flat owner or an admin can update this flat"
+    );
   }
 
   const allowedFields = [
@@ -78,6 +86,7 @@ async function updateFlat(flatId, updates, currentUser) {
     "rentPrice",
     "dateAvailable",
   ];
+
   const updateData = {};
 
   for (const field of allowedFields) {
@@ -86,11 +95,9 @@ async function updateFlat(flatId, updates, currentUser) {
     }
   }
 
-  const updatedFlat = await Flat.findByIdAndUpdate(
-    flatId,
-    updateData,
-    { new: true }
-  );
+  const updatedFlat = await Flat.findByIdAndUpdate(flatId, updateData, {
+    new: true,
+  });
 
   if (!updatedFlat) {
     throw createError(404, "Flat not found");
@@ -116,12 +123,15 @@ async function deleteFlat(flatId, currentUser) {
   const isOwner = flat.owner.toString() === currentUser.id;
   const isAdmin = currentUser.isAdmin === true;
 
+  // only the owner or an admin can delete(reinforced)
   if (!isOwner && !isAdmin) {
-    throw createError(403, "Only the flat owner or an admin can delete this flat");
+    throw createError(
+      403,
+      "Only the flat owner or an admin can delete this flat"
+    );
   }
 
   await Flat.findByIdAndDelete(flatId);
-
   return;
 }
 
@@ -131,4 +141,5 @@ module.exports = {
   createFlat,
   updateFlat,
   deleteFlat,
+  updateUser,
 };

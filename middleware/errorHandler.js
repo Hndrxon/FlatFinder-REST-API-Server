@@ -1,4 +1,3 @@
-
 /**
  * Global error-handling middleware.
  * Intercepts thrown errors and ensures consistent JSON responses.
