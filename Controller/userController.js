@@ -1,6 +1,6 @@
 const userService = require("../Services/userService");
 
-/* creates a new user. */
+/* creates a new user.(obvious) */
 async function register(req, res, next) {
   try {
     const { email, password, firstName, lastName, birthDate, isAdmin } = req.body;

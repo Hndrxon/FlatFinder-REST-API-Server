@@ -1,4 +1,3 @@
-
 const jwt = require("jsonwebtoken");
 
 /**
@@ -7,25 +6,25 @@ const jwt = require("jsonwebtoken");
  * Expected header format: "Authorization: Bearer <token>"
  */
 function authenticate(req, res, next) {
-// Accept both lowercase and uppercase header variants
+  // Accept both lowercase and uppercase header variants
   const authHeader = req.headers.authorization || req.headers.Authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({
-      message: "Authentication required: missing or invalid Authorization header",
+      message:
+        "Authentication required: missing or invalid Authorization header",
     });
   }
 
-// Example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   const token = authHeader.split(" ")[1];
 
   try {
-// Verify token using the secret defined in .env (JWT_SECRET)
+    // Verify token using the secret defined in .env (JWT_SECRET)
     const payload = jwt.verify(token, process.env.JWT_SECRET);
 
-// Normalize the payload into a consistent req.user object
+    // Normalize the payload into a consistent req.user object
     req.user = {
-      id: payload.userId,           // internal user ID
+      id: payload.userId, // internal user ID
       isAdmin: payload.isAdmin === true,
     };
 

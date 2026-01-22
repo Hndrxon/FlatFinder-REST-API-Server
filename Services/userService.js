@@ -2,7 +2,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 
-// Helper to create HTTP errors with status codes
 function createError(statusCode, message) {
   const err = new Error(message);
   err.statusCode = statusCode;
